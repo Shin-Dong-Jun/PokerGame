@@ -92,46 +92,6 @@ public class CardCheckDealer {
 
 }
 
-//
-int compareDeck(Card[] deck1, Card[] deck2) {
-    Arrays.sort(deck1, new Descending()); // 내림차순 정렬
-    Arrays.sort(deck2, new Descending());
 
-    // 핸드 타입 판별
-    String hand1 = cardCheckDealer.cardCheck(deck1);
-    String hand2 = cardCheckDealer.cardCheck(deck2);
-
-    // 포카드 판별 및 비교
-    if (hand1.equals("포카드") && hand2.equals("포카드")) {
-        int deck1FourOfAKindSum = getFourOfAKindSum(deck1);
-        int deck2FourOfAKindSum = getFourOfAKindSum(deck2);
-
-        if (deck1FourOfAKindSum != deck2FourOfAKindSum) {
-            return deck2FourOfAKindSum - deck1FourOfAKindSum; // 합이 큰 사람이 우승
-        }
-    }
-
-    // 기본 카드 비교 (하이카드, 스트레이트 등)
-    for (int i = 0; i < deck1.length; i++) {
-        int card1Value = (deck1[i].number == 1) ? 14 : deck1[i].number; // Ace를 14로 처리
-        int card2Value = (deck2[i].number == 1) ? 14 : deck2[i].number;
-
-        if (card1Value != card2Value) {
-            return card2Value - card1Value;
-        }
-
-        // 같은 값이면 무늬 비교
-        if (deck1[i].kind != deck2[i].kind) {
-            return deck1[i].kind - deck2[i].kind;
-        }
-    }
-
-    return 0; // 완전히 동일한 경우
-}
-
-int getFourOfAKindSum(Card[] deck) {
-    // 첫 네 장의 합 계산
-    return deck[0].number + deck[1].number + deck[2].number + deck[3].number;
-}
 
 
