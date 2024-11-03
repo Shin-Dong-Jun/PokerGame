@@ -13,3 +13,5 @@
                 betterHighCard : 동점자 발생시 우위를 가려주는 메서드
                 compareDeck : 우위를 가리기 위해 두 플레이어의 덱을 비교하는 메서드
                 lastWinner : 최종 승리자를체크하는 메서드
+7. DescWinRate,Descending, DescCard : 정렬기준을 설정한 클래스
+8. PokerGame : 위의 클래스들을 포함하여 전반적으로 게임이 진행되는 메인클래스입니다.
