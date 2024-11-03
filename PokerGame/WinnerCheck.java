@@ -2,6 +2,8 @@ package PokerGame;
 
 import java.util.*;
 
+import static java.lang.Integer.compare;
+
 public class WinnerCheck {
     Player winner;
 
@@ -33,69 +35,127 @@ public class WinnerCheck {
 
         for (int i = 1; i < tiePlayers.size(); i++) { // tie player list의 수만큼 반복문을 돌린다음
             Player player = tiePlayers.get(i);
-            if (compareDeck(player.playerDeck, lastWinPlayer.playerDeck) > 0) { // 두 사람의 카드 덱이 더 높은 사람이 lastWinPlayer에 들어감
+            if (compareDeck(player, lastWinPlayer) > 0) { // 두 사람의 카드 덱이 더 높은 사람이 lastWinPlayer에 들어감
                 lastWinPlayer = player;
             }
         }
         return lastWinPlayer;
     }
 
-    int compareDeck(Card[] deck1, Card[] deck2) { // 카드 비교.
+    int compareDeck(Player p1, Player p2) { // 카드 비교.
 
-        Arrays.sort(deck1, new Descending()); // 역순 comparator // 투페어일 때 정렬한다음에 포카드일때는 4번째까지의 합만 더하면되잖아
-        Arrays.sort(deck2, new Descending());
-        System.out.println(Arrays.toString(deck1));
-        System.out.println(Arrays.toString(deck2));
+        Arrays.sort(p1.playerDeck, new Descending()); // 역순 comparator // 투페어일 때 정렬한다음에 포카드일때는 4번째까지의 합만 더하면되잖아
+        Arrays.sort(p2.playerDeck, new Descending());
+        System.out.println(p1.nickName + "의 카드 : " + Arrays.toString(p1.playerDeck)); // 정렬
+        System.out.println(p2.nickName + "의 카드 : " + Arrays.toString(p2.playerDeck));
 
         int countPair1[] = new int[14];
         int countPair2[] = new int[14];
         int[] kind = new int[4];         // 카드 종류 (Spade, Heart, Diamond, Clover)
-        int compareNum1= 0;
-        int compareNum2 = 0;
 
-        for (Card card : deck1) {
+        for (Card card : p1.playerDeck) { // 플레이어1의 덱에서 무슨 숫자가 나왔는지 다시 확인
             countPair1[card.number]++;     // 숫자 카운트
             kind[card.kind - 1]++;        // 종류 카운트
         }
-        for (Card card : deck2) {
+        for (Card card : p2.playerDeck) { // 플레이어 2의 덱에서 무슨 숫자가 나왔는지 다시 확인.
             countPair2[card.number]++;     // 숫자 카운트
             kind[card.kind - 1]++;        // 종류 카운트
         }
-        for(int i = 0; i < deck1.length -1; i++){
-            if(deck1[i].number == deck1[i+1].number){
-                compareNum1 = deck1[i].number;
+// 포카드 비교
+        int fourCard1 = -1, fourCard2 = -1;
+        for (int i = 13; i >= 1; i--) {
+            if (countPair1[i] == 4) {
+                fourCard1 = i;
+                break;
             }
-            if(deck2[i].number == deck2[i+1].number){
-                compareNum2 = deck2[i].number;
+        }
+        for (int i = 13; i >= 1; i--) {
+            if (countPair2[i] == 4) {
+                fourCard2 = i;
+                break;
+            }
+        }
+        if (fourCard1 != -1 || fourCard2 != -1) {
+            return compare(fourCard1, fourCard2);
+        }
+
+        // 트리플 비교
+        int threeCard1 = -1, threeCard2 = -1;
+        for (int i = 13; i >= 1; i--) {
+            if (countPair1[i] == 3) {
+                threeCard1 = i;
+                break;
+            }
+        }
+        for (int i = 13; i >= 1; i--) {
+            if (countPair2[i] == 3) {
+                threeCard2 = i;
+                break;
+            }
+        }
+        if (threeCard1 != -1 || threeCard2 != -1) {
+            return compare(threeCard1, threeCard2);
+        }
+
+        // 투페어 비교
+        int[] twoPair1 = new int[2];
+        int[] twoPair2 = new int[2];
+        int pairCount1 = 0, pairCount2 = 0;
+
+        for (int i = 13; i >= 1; i--) {
+            if (countPair1[i] == 2) {
+                if (pairCount1 < 2) {
+                    twoPair1[pairCount1++] = i;
+                }
+            }
+            if (countPair2[i] == 2) {
+                if (pairCount2 < 2) {
+                    twoPair2[pairCount2++] = i;
+                }
+            }
+        }
+        if (pairCount1 == 2 || pairCount2 == 2) {
+            if (twoPair1[0] != twoPair2[0]) {
+                return compare(twoPair1[0], twoPair2[0]);
+            }
+            if (twoPair1[1] != twoPair2[1]) {
+                return compare(twoPair1[1], twoPair2[1]);
             }
         }
 
-        
+        // 원페어 비교
+        int onePair1 = -1, onePair2 = -1;
+        for (int i = 13; i >= 1; i--) {
+            if (countPair1[i] == 2) {
+                onePair1 = i;
+                break;
+            }
+        }
+        for (int i = 13; i >= 1; i--) {
+            if (countPair2[i] == 2) {
+                onePair2 = i;
+                break;
+            }
+        }
+        if (onePair1 != onePair2) {
+            return compare(onePair1, onePair2);
+        }
 
-        for (int i = 0; i < deck1.length; i++) { // 하이 카드일때와 스트레이트일 때는 결과가 정확함.
-            int card1Value = (deck1[i].number == 1) ? 14 : deck1[i].number; // a를 1로 저장해서 변환
-            int card2Value = (deck2[i].number == 1) ? 14 : deck2[i].number;
+        for (int i = 0; i < p1.playerDeck.length; i++) { // 하이 카드일때와 스트레이트일 때는 결과가 정확함.
+            int card1Value = (p1.playerDeck[i].number == 1) ? 14 : p1.playerDeck[i].number; // a를 1로 저장해서 변환
+            int card2Value = (p2.playerDeck[i].number == 1) ? 14 : p2.playerDeck[i].number;
 
 
             if (card1Value != card2Value) {
                 return card2Value - card1Value;
             }
-            if (deck1[i].kind != deck2[i].kind) {
-                return deck1[i].kind - deck2[i].kind;
+            if (p1.playerDeck[i].kind != p2.playerDeck[i].kind) {
+                return p1.playerDeck[i].kind - p2.playerDeck[i].kind;
             }
 
         }
         return 0;
     }
-    /*
-    이 메서드는 하이 카드일 때랑 스트레이트일떄는 잘 비교가 되는데 원페어, 투페어, 트리플카드, 포카드일 때는 오류가 발생할 수 있어
-    왜냐하면 덱1의 카드가 1, 3, 3, 5, 5, 일때랑 3, 3, 4, 4, 5일 때는 덱 1이 이겨야 되는데 이럴경우 덱 2가 이기는 경우가 발생하기 때문이지
-    예를 들면 투 페어 동점자가 나왔을 때 두 플레이어의 덱중에서 더 높은 숫자의 페어를 가지고 있는 사람이 이겨야 된단말이야.
-    트리플 카드도 3, 3, 3, 4, 5 랑 4, 6, 5, 5, 5면은 5, 5, 5 인사람이 이겨야 하는거지. 포카드도 마찬가지.
-     */
-
-
-
 
 
     void winMoney(Player[] player) {
